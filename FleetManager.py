@@ -7,8 +7,8 @@ from ws4py.client.threadedclient import WebSocketClient
 
 class BorderConnectClient(WebSocketClient):
     
-    def setMessage(self, message):
-        self.message = message
+    def setSendMessage(self, message):
+        self.sendMessage = message
     
     def opened(self):
         self.send('{"apiKey": "a-12698-3fac5f135b764570"}')
@@ -24,11 +24,10 @@ class BorderConnectClient(WebSocketClient):
             print("Status: " + content["status"])
             
             if content["status"] == "OK":
-                print("Sending ACI shipment")
-                self.send(json.dumps(self.message))
+                print("Sending to BorderConnect")
+                self.send(json.dumps(self.sendMessage))
             elif content["status"] == "QUEUED":
-                print("ACI shipment queued. Please check BorderConnect")
-                # TODO: Send Amend Request to BC
+                print("File received. Please check BorderConnect")
             else:
                 print("ERROR: Unrecognized status received")
         self.close()
@@ -70,14 +69,14 @@ def press1(button):
                         json.dump(ACI, outFile)
                     
                 if app.getCheckBox("Send .json(s) to BorderConnect"):
-                    pass
-                    # TODO: Add BC Connection
-                    # TODO: Test generated ACEs/ACIs by sending them to BC
+                    sendToBC(ACE)
+                    sendToBC(ACI)
                     
                 if app.getCheckBox("Email .pdfs to Driver"):
                     pass
-                    # TODO: Add BC Connection
-                    # TODO: Test generated ACEs/ACIs by sending them to BC
+                    # TODO: Fetch .pdfs from BC once available
+                    # TODO: Sort .pdfs in to relevant folder
+                    # TODO: Email .pdfs to driver
     except:
         print(sys.exc_info())
         raise
@@ -107,7 +106,7 @@ def press2(button):
                     "weight": str(weight),
                     "weightUnit": "LBR"
                     })
-        # TODO: TEMP
+        # TEMP
         print(trip)
         path = "ACE-ACI Manifests" + os.sep + YYYYMMDD
         if not os.path.exists("ACE-ACI Manifests"):
@@ -115,18 +114,17 @@ def press2(button):
         if not os.path.exists(path):
             os.mkdir(path)
         with open(path + os.sep + "aci-shipment-" + PARS + ".json", "w") as outFile:
-            print(type(trip))
             json.dump(trip, outFile)
-        # END TEMP
-        '''
-        try:
-            client = BorderConnectClient("wss://borderconnect.com/api/sockets/stallionexpress", trip)
-            client.setMessage(out)
-            client.connect()
-            client.run_forever()
-        except KeyboardInterrupt:
-            client.close()
-            '''
+        sendToBC(trip)
+
+def sendToBC(sendMessage):
+    try:
+        client = BorderConnectClient("wss://borderconnect.com/api/sockets/stallionexpress")
+        client.setSendMessage(sendMessage)
+        client.connect()
+        client.run_forever()
+    except KeyboardInterrupt:
+        client.close()
 
 def getNextTime(): # returns next available 15-minute arrival time
     now = datetime.datetime.now()
