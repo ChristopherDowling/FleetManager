@@ -1,0 +1,57 @@
+{
+	"data": "ACE_TRIP",
+	"operation": "CREATE",
+	"tripNumber": "SEIK191021DR",
+	"usPortOfArrival": "0901",
+	"estimatedArrivalDateTime": "2019-10-21 10:00:00",
+	"instrumentsOfInternationalTrafficBond": {
+		"type": "IMPORTER"
+	},
+	"truck": {
+		"number": "664077",
+		"type": "TR",
+		"vinNumber": "3AKJGED51GDHV7196",
+		"dotNumber": "3146045",
+		"licensePlates": [
+			{
+				"number": "9426PY",
+				"stateProvince": "ON"
+			}
+		]
+	},
+	"trailers": [
+		{
+			"number": "9P1683",
+			"type": "TL",
+			"licensePlates": [
+				{
+					"number": "P5375E",
+					"stateProvince": "ON"
+				}
+			]
+		}
+	],
+	"drivers": [
+		{
+			"firstName": "Zaheer Muhammad",
+			"lastName": "Husnain",
+			"gender": "M",
+			"dateOfBirth": "1966-01-15",
+			"citizenshipCountry": "CA",
+			"fastCardNumber": "42700207118201",
+			"travelDocuments": [
+				{
+					"number": "H94517920660118",
+					"type": "5J",
+					"stateProvince": "ON"
+				},
+				{
+					"number": "AJ921860",
+					"type": "ACW",
+					"country": "CA"
+				}
+			]
+		}
+	],
+	"autoSend": false
+}

@@ -1,0 +1,42 @@
+{
+	"data": "ACI_SHIPMENT",
+	"companyKey": "c-9000-2bcd8ae5954e0c48",
+	"operation": "UPDATE",
+	"shipmentType": "PARS",
+	"loadedOn": {
+		"type": "TRAILER",
+		"number": "9P1683"
+	},
+	"cargoControlNumber": "726G191018DR02",
+	"referenceOnlyShipment": false,
+	"portOfEntry": "0427",
+	"releaseOffice": "0427",
+	"estimatedArrivalDate": "2019-10-18 11:00:00",
+	"estimatedArrivalTimeZone": "EST",
+	"cityOfLoading": {
+		"cityName": "Buffalo",
+		"stateProvince": "NY"
+	},
+	"consolidatedFreight": false,
+	"shipper": {
+		"name": "Ford Buffalo Stamping",
+		"address": {
+			"addressLine": "3663 Lakeshore Road",
+			"city": "Buffalo",
+			"stateProvince": "NY",
+			"postalCode": "14219"
+		}
+	},
+	"consignee": {
+		"name": "Maple Stamping",
+		"address": {
+			"addressLine": "401 Caldari Road",
+			"city": "Concord",
+			"stateProvince": "ON",
+			"postalCode": "L4K 5P1"
+		}
+	},
+	"commodities": [
+	],
+	"autoSend": false
+}

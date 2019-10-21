@@ -1,0 +1,101 @@
+{
+	"data": "ACI_TRIP",
+	"operation": "CREATE",
+	"tripNumber": "726G191017DR",
+	"portOfEntry": "0427",
+	"estimatedArrivalDateTime": "2019-10-17 12:30:00",
+	"estimatedArrivalTimeZone": "EST",
+	"truck": {
+		"number": "664077",
+		"type": "TR",
+		"vinNumber": "3AKJGED51GDHV7196",
+		"dotNumber": "3146045",
+		"licensePlate": {
+			"number": "9426PY",
+			"stateProvince": "ON"
+		}
+	},
+	"trailers": [
+		{
+			"number": "9P1683",
+			"type": "TL",
+			"licensePlate": {
+				"number": "P5375E",
+				"stateProvince": "ON"
+			}
+		}
+	],
+	"drivers": [
+		{
+			"firstName": "Zaheer Muhammad",
+			"lastName": "Husnain",
+			"gender": "M",
+			"dateOfBirth": "1966-01-15",
+			"citizenshipCountry": "CA",
+			"fastCardNumber": "42700207118201",
+			"travelDocuments": [
+				{
+					"number": "H94517920660118",
+					"type": "5J",
+					"stateProvince": "ON"
+				},
+				{
+					"number": "AJ921860",
+					"type": "ACW",
+					"country": "CA"
+				}
+			]
+		}
+	],
+	"shipments": [
+		{
+			"data": "ACI_SHIPMENT",
+			"operation": "CREATE",
+			"shipmentType": "PARS",
+			"loadedOn": {
+				"type": "TRAILER",
+				"number": "9P1683"
+			},
+			"cargoControlNumber": "726G191017DR02",
+			"referenceOnlyShipment": false,
+			"portOfEntry": "0427",
+			"releaseOffice": "0427",
+			"estimatedArrivalDate": "2019-10-17 12:30:00",
+			"estimatedArrivalTimeZone": "EST",
+			"cityOfLoading": {
+				"cityName": "Buffalo",
+				"stateProvince": "NY"
+			},
+			"consolidatedFreight": false,
+			"shipper": {
+				"name": "Ford Buffalo Stamping",
+				"address": {
+					"addressLine": "3663 Lakeshore Road",
+					"city": "Buffalo",
+					"stateProvince": "NY",
+					"postalCode": "14219"
+				}
+			},
+			"consignee": {
+				"name": "Maple Stamping",
+				"address": {
+					"addressLine": "401 Caldari Road",
+					"city": "Concord",
+					"stateProvince": "ON",
+					"postalCode": "L4K 5P1"
+				}
+			},
+			"commodities": [
+				{
+					"description": "TEMP ITEM",
+					"quantity": 1,
+					"packagingUnit": "PCE",
+					"weight": "1",
+					"weightUnit": "LBR"
+				}
+			],
+			"autoSend": false
+		}
+	],
+	"autoSend": false
+}

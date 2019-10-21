@@ -1,8 +1,9 @@
 from appJar import gui
 import json
 import datetime
+import sys
+import os
 from ws4py.client.threadedclient import WebSocketClient
-from orca.scripts import self_voicing
 
 class BorderConnectClient(WebSocketClient):
     
@@ -14,6 +15,7 @@ class BorderConnectClient(WebSocketClient):
         
     def closed(self, code, reason=None):
         print("BorderConnectClient closed")
+        self.close()
     
     def received_message(self, responce):
         #print(responce)
@@ -26,55 +28,69 @@ class BorderConnectClient(WebSocketClient):
                 self.send(json.dumps(self.message))
             elif content["status"] == "QUEUED":
                 print("ACI shipment queued. Please check BorderConnect")
+                # TODO: Send Amend Request to BC
             else:
                 print("ERROR: Unrecognized status received")
         self.close()
 
-def press(button):
-    if button == "Submit":
+def press1(button):
+    try:
+        with open("ACEconfig.json", "r") as ACEconfigFile:
+            ACE = json.load(ACEconfigFile)
+        with open("ACIconfig.json", "r") as ACIconfigFile:
+            ACI = json.load(ACIconfigFile)
+            
+        start = app.getDatePicker("startDP")
+        end = app.getDatePicker("endDP")
+        delta = (end - start).days + 1
+        for i in range(0, delta): # For each day between the start and end dates
+            day = datetime.date.fromordinal(start.toordinal() + i)
+            YYYYMMDD = str(day).replace("-", "")
+            if day.weekday() < 5: # If the day is not Saturday or Sunday
+                SCAC = "SEIK" + YYYYMMDD + "DR"
+                ACE["tripNumber"] = SCAC
+                ACE["estimatedArrivalDateTime"] = str(day) + " 10:00:00"
+                
+                CCN = "726G" + YYYYMMDD + "DR"
+                PARS = CCN + "02"
+                ACI["tripNumber"] = CCN
+                ACI["estimatedArrivalDateTime"] = str(day) + " 12:00:00"
+                ACI["shipments"][0]["cargoControlNumber"] = PARS
+                ACI["shipments"][0]["estimatedArrivalDate"] = str(day) + " 12:00:00"
+                
+                if app.getCheckBox("Save .json(s) to disk"):
+                    path = "ACE-ACI Manifests" + os.sep + YYYYMMDD
+                    if not os.path.exists("ACE-ACI Manifests"):
+                        os.mkdir("ACE-ACI Manifests")
+                    if not os.path.exists(path):
+                        os.mkdir(path)
+                    with open(path + os.sep + "ace-trip-" + SCAC + ".json", "w") as outFile:
+                        json.dump(ACE, outFile)
+                    with open(path + os.sep + "aci-trip-" + CCN + ".json", "w") as outFile:
+                        json.dump(ACI, outFile)
+                    
+                if app.getCheckBox("Send .json(s) to BorderConnect"):
+                    pass
+                    # TODO: Add BC Connection
+                    # TODO: Test generated ACEs/ACIs by sending them to BC
+                    
+                if app.getCheckBox("Email .pdfs to Driver"):
+                    pass
+                    # TODO: Add BC Connection
+                    # TODO: Test generated ACEs/ACIs by sending them to BC
+    except:
+        print(sys.exc_info())
+        raise
+
+def press2(button):
+    if button == "Send to BC":
+        with open("tripconfig.json", "r") as tripconfigFile:
+            trip = json.load(tripconfigFile)
         today = str(datetime.datetime.now())[:10] #Produces string in the format YYYY-MM-DD
-        PARS = "726G" + today.replace("-", "") + "DR02" #String version of PARS number
-        out = {
-            "data": "ACI_SHIPMENT",
-            "companyKey": "c-9000-2bcd8ae5954e0c48",
-            "operation": "UPDATE",
-            "shipmentType": "PARS",
-            "loadedOn": {
-                "type": "TRAILER",
-                "number": "9P1683"
-            },
-            "cargoControlNumber": PARS,
-            "referenceOnlyShipment": False,
-            "portOfEntry": "0427",
-            "releaseOffice": "0427",
-            "estimatedArrivalDate": today + " 12:30:00",
-            "estimatedArrivalTimeZone": "EST",
-            "cityOfLoading": {
-                "cityName": "Buffalo",
-                "stateProvince": "NY"
-            },
-            "consolidatedFreight": False,
-            "shipper": {
-                "name": "Ford Buffalo Stamping",
-                "address": {
-                    "addressLine": "3663 Lakeshore Road",
-                    "city": "Buffalo",
-                    "stateProvince": "NY",
-                    "postalCode": "14219"
-                }
-            },
-            "consignee": {
-                "name": "Maple Stamping",
-                "address": {
-                    "addressLine": "401 Caldari Road",
-                    "city": "Concord",
-                    "stateProvince": "ON",
-                    "postalCode": "L4K 5P1"
-                }
-            },
-            "commodities": [],
-            "autoSend": False
-        }
+        YYYYMMDD = today.replace("-", "")
+        PARS = "726G" + YYYYMMDD + "DR02" #String version of PARS number
+        trip["cargoControlNumber"] = PARS
+        trip["estimatedArrivalDate"] = getNextTime()
         total = 0
         for i in range(1, 6):
             if (app.getEntry("box" + str(i) + "Quantity") != "") and (app.getEntry("totalWeight") != ""):
@@ -84,25 +100,47 @@ def press(button):
                 desc = app.getOptionBox("box" + str(i))
                 quan = int(app.getEntry("box" + str(i) + "Quantity"))
                 weight = round(quan / total * int(app.getEntry("totalWeight")))
-                out["commodities"].append({
+                trip["commodities"].append({
                     "description": desc,
                     "quantity": quan,
                     "packagingUnit": "PCE",
                     "weight": str(weight),
                     "weightUnit": "LBR"
                     })
-        # TEMP
-        print(out)
-        with open("aci-shipment-" + PARS + ".json", "w") as outFile:
-            json.dump(out, outFile)
+        # TODO: TEMP
+        print(trip)
+        path = "ACE-ACI Manifests" + os.sep + YYYYMMDD
+        if not os.path.exists("ACE-ACI Manifests"):
+            os.mkdir("ACE-ACI Manifests")
+        if not os.path.exists(path):
+            os.mkdir(path)
+        with open(path + os.sep + "aci-shipment-" + PARS + ".json", "w") as outFile:
+            print(type(trip))
+            json.dump(trip, outFile)
         # END TEMP
+        '''
         try:
-            client = BorderConnectClient("wss://borderconnect.com/api/sockets/stallionexpress", out)
+            client = BorderConnectClient("wss://borderconnect.com/api/sockets/stallionexpress", trip)
             client.setMessage(out)
             client.connect()
             client.run_forever()
         except KeyboardInterrupt:
             client.close()
+            '''
+
+def getNextTime(): # returns next available 15-minute arrival time
+    now = datetime.datetime.now()
+    day = now.strftime("%Y-%m-%d")
+    hour = int(now.strftime("%H"))
+    minute = int(now.strftime("%M"))
+    minute = ((minute // 15) + 1) * 15
+    if minute >= 60:
+        minute = minute % 60
+        hour = hour + 1
+        if hour >= 24:
+            hour = hour % 24
+    return(day + " " + str(hour) + ":" + str(minute) + ":00")
+
 
 options = [
     "None",
@@ -118,6 +156,35 @@ options = [
 
 app = gui()
 
+app.startTabbedFrame("TabbedFrame")
+
+# Tab 1
+app.startTab("ACE/ACI Creation")
+
+app.setSticky("w")
+app.addLabel("label1", "Start Date:", 0, 0)
+app.addDatePicker("startDP", 1, 0)
+app.setDatePickerRange("startDP", 2019, 2037)
+app.setDatePicker("startDP")
+
+app.addLabel("label2", "End Date:", 0, 1)
+app.addDatePicker("endDP", 1, 1)
+app.setDatePickerRange("endDP", 2019, 2037)
+app.setDatePicker("endDP")
+
+app.addCheckBox("Save .json(s) to disk")
+app.addCheckBox("Send .json(s) to BorderConnect")
+app.addCheckBox("Email .pdfs to Driver")
+app.setCheckBox("Save .json(s) to disk")
+app.setCheckBox("Send .json(s) to BorderConnect")
+app.setCheckBox("Email .pdfs to Driver")
+
+app.setSticky("s")
+app.addButton("Generate", press1)
+app.stopTab()
+
+# Tab 2
+app.startTab("ACI Contents Entry")
 app.addLabel("title1Label", "", 0, 0)
 app.addLabel("title2Label", "Item:", 0, 1)
 app.addLabel("title3Label", "Quantity:", 0, 2)
@@ -145,5 +212,14 @@ app.addEntry("box4Quantity", 4, 2)
 app.addEntry("box5Quantity", 5, 2)
 app.addEntry("box6Quantity", 6, 2)
 
-app.addButton("Submit", press, 8, 1)
+app.addButton("Send to BC", press2, 8, 1)
+app.stopTab()
+
+# Tab 3
+app.startTab("Invoice Generation")
+app.addLabel("label3", "Test post, please ignore")
+app.stopTab()
+
+app.stopTabbedFrame()
+
 app.go()
