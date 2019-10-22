@@ -22,14 +22,14 @@ class BorderConnectClient(WebSocketClient):
         content = json.loads(responce.data.decode("utf-8"))
         if "status" in content.keys():
             print("Status: " + content["status"])
-            
             if content["status"] == "OK":
                 print("Sending to BorderConnect")
                 self.send(json.dumps(self.sendMessage))
             elif content["status"] == "QUEUED":
                 print("File received. Please check BorderConnect")
             else:
-                print("ERROR: Unrecognized status received")
+                print("ERROR: Unrecognized responce received:")
+                print(responce)
         self.close()
 
 def press1(button):
@@ -73,10 +73,20 @@ def press1(button):
                     sendToBC(ACI)
                     
                 if app.getCheckBox("Email .pdfs to Driver"):
-                    pass
-                    # TODO: Fetch .pdfs from BC once available
-                    # TODO: Sort .pdfs in to relevant folder
-                    # TODO: Email .pdfs to driver
+                    ACERequest = {
+                        "data": "PDF_REQUEST",
+                        "companyKey": "c-9000-2bcd8ae5954e0c48",
+                        "type": "ACE_STANDARD_DRIVERS_COPY",
+                        "action": "email",
+                        "tripNumber": SCAC,
+                        "emailDetails": {
+                            "address": "christopher@stallionexpress.ca",
+                            "replyToAddress": "christopher@stallionexpress.ca",
+                            "subject": "ACE eManifest Trip Number " + SCAC,
+                            "body": str(day)
+                            }
+                        }
+                    sendToBC(ACERequest)
     except:
         print(sys.exc_info())
         raise
@@ -116,6 +126,11 @@ def press2(button):
         with open(path + os.sep + "aci-shipment-" + PARS + ".json", "w") as outFile:
             json.dump(trip, outFile)
         sendToBC(trip)
+        
+def press3():
+    # TODO: Generate Invoice
+    # TODO: Email to Timeline
+    pass
 
 def sendToBC(sendMessage):
     try:
