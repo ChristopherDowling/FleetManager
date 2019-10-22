@@ -20,16 +20,14 @@ class BorderConnectClient(WebSocketClient):
     def received_message(self, responce):
         #print(responce)
         content = json.loads(responce.data.decode("utf-8"))
+        print(responce)
         if "status" in content.keys():
-            print("Status: " + content["status"])
             if content["status"] == "OK":
-                print("Sending to BorderConnect")
                 self.send(json.dumps(self.sendMessage))
             elif content["status"] == "QUEUED":
-                print("File received. Please check BorderConnect")
+                pass
             else:
                 print("ERROR: Unrecognized responce received:")
-                print(responce)
         self.close()
 
 def press1(button):
@@ -72,12 +70,12 @@ def press1(button):
                     sendToBC(ACE)
                     sendToBC(ACI)
                     
-                if app.getCheckBox("Email .pdfs to Driver"):
+                if app.getCheckBox("Request .pdf(s) from BorderConnect"):
                     ACERequest = {
                         "data": "PDF_REQUEST",
                         "companyKey": "c-9000-2bcd8ae5954e0c48",
                         "type": "ACE_STANDARD_DRIVERS_COPY",
-                        "action": "email",
+                        "action": "EMAIL",
                         "tripNumber": SCAC,
                         "emailDetails": {
                             "address": "christopher@stallionexpress.ca",
@@ -87,6 +85,22 @@ def press1(button):
                             }
                         }
                     sendToBC(ACERequest)
+                    ACIRequest = {
+                        "data": "PDF_REQUEST",
+                        "companyKey": "c-9000-2bcd8ae5954e0c48",
+                        "type": "ACI_STANDARD_DRIVERS_COPY",
+                        "action": "EMAIL",
+                        "tripNumber": CCN,
+                        "emailDetails": {
+                            "address": "christopher@stallionexpress.ca",
+                            "replyToAddress": "christopher@stallionexpress.ca",
+                            "subject": "ACI eManifest Trip Number " + CCN,
+                            "body": str(day)
+                            }
+                        }
+                    sendToBC(ACIRequest)
+                # TODO: Add ACI request
+                # TODO: Look in to generating the PDF yourself (incl. barcode?)
     except:
         print(sys.exc_info())
         raise
@@ -126,9 +140,12 @@ def press2(button):
         with open(path + os.sep + "aci-shipment-" + PARS + ".json", "w") as outFile:
             json.dump(trip, outFile)
         sendToBC(trip)
+        # TODO: Add drag'n'drop support to store Ford BoL
+        # TODO: Autosend email to Buckland
         
 def press3():
     # TODO: Generate Invoice
+    # TODO: add drag'n'drop support to sort signed BoLs
     # TODO: Email to Timeline
     pass
 
@@ -187,10 +204,10 @@ app.setDatePicker("endDP")
 
 app.addCheckBox("Save .json(s) to disk")
 app.addCheckBox("Send .json(s) to BorderConnect")
-app.addCheckBox("Email .pdfs to Driver")
+app.addCheckBox("Request .pdf(s) from BorderConnect")
 app.setCheckBox("Save .json(s) to disk")
 app.setCheckBox("Send .json(s) to BorderConnect")
-app.setCheckBox("Email .pdfs to Driver")
+app.setCheckBox("Request .pdf(s) from BorderConnect")
 
 app.setSticky("s")
 app.addButton("Generate", press1)
