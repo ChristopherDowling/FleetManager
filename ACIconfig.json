@@ -94,8 +94,8 @@
 					"weightUnit": "LBR"
 				}
 			],
-			"autoSend": false
+			"autoSend": true
 		}
 	],
-	"autoSend": false
+	"autoSend": true
 }

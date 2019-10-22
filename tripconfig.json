@@ -38,5 +38,5 @@
 	},
 	"commodities": [
 	],
-	"autoSend": false
+	"autoSend": true
 }
