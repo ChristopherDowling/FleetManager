@@ -4,9 +4,6 @@
 	"tripNumber": "SEIK191021DR",
 	"usPortOfArrival": "0901",
 	"estimatedArrivalDateTime": "2019-10-21 10:00:00",
-	"instrumentsOfInternationalTrafficBond": {
-		"type": "IMPORTER"
-	},
 	"truck": {
 		"number": "664077",
 		"type": "TR",
